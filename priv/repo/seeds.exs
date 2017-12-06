@@ -249,7 +249,7 @@ Hexpm.Repo.transaction(fn ->
     ]
   )
 
-  insert(:repository_user, repository: myrepo, user: eric)
+  insert(:repository_user, repository: myrepo, user: eric, role: "admin")
 
   Enum.each(1..100, fn index ->
     ups = insert(:package,
