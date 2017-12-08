@@ -68,6 +68,7 @@ defmodule Hexpm.MixProject do
       {:sweet_xml, "~> 0.5"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:ex_machina, "~> 2.0", only: [:dev, :test]},
+      {:mox, "~> 0.3.1", only: :test},
       {:rollbax, "~> 0.5", only: :prod}
     ]
   end
