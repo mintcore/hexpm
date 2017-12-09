@@ -86,7 +86,7 @@ defmodule Hexpm.Web.API.AuthControllerTest do
       |> response(401)
     end
 
-    test "authenticate repo key", %{repo_key: key, owned_repo: owned_repo, unowned_repo: unowned_repo} do
+    test "authenticate repository key", %{repo_key: key, owned_repo: owned_repo, unowned_repo: unowned_repo} do
       build_conn()
       |> put_req_header("authorization", key.user_secret)
       |> get("api/auth", domain: "api")
@@ -113,10 +113,21 @@ defmodule Hexpm.Web.API.AuthControllerTest do
       |> response(401)
     end
 
-    test "authenticate repo key against repo without access permissions", %{unowned_repo_key: key, unowned_repo: unowned_repo} do
+    test "authenticate repository key against repository without access permissions", %{unowned_repo_key: key, unowned_repo: unowned_repo} do
       build_conn()
       |> put_req_header("authorization", key.user_secret)
       |> get("api/auth", domain: "repository", resource: unowned_repo.name)
+      |> response(403)
+    end
+
+    test "authenticate repository key against repository without active billing", %{user: user} do
+      repo = insert(:repository, billing_active: false)
+      insert(:repository_user, repository: repo, user: user)
+      key = insert(:key, user: user, permissions: [build(:key_permission, domain: "repository", resource: repo.name)])
+
+      build_conn()
+      |> put_req_header("authorization", key.user_secret)
+      |> get("api/auth", domain: "repository", resource: repo.name)
       |> response(403)
     end
   end

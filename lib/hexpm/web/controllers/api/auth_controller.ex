@@ -10,10 +10,17 @@ defmodule Hexpm.Web.API.AuthController do
     resource = params["resource"]
 
     if Key.verify_permissions?(key, domain, resource) do
-      if User.verify_permissions?(user, domain, resource) do
-        send_resp(conn, 204, "")
-      else
-        error(conn, {:error, :auth})
+      case User.verify_permissions(user, domain, resource) do
+        {:ok, nil} ->
+          send_resp(conn, 204, "")
+        {:ok, repository} ->
+          if repository.public or repository.billing_active do
+            send_resp(conn, 204, "")
+          else
+            error(conn, {:error, :auth, "repository has no active billing subscription"})
+          end
+        :error ->
+          error(conn, {:error, :auth})
       end
     else
       error(conn, {:error, :domain})

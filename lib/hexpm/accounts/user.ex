@@ -115,17 +115,18 @@ defmodule Hexpm.Accounts.User do
       preload: ^preload)
   end
 
-  def verify_permissions?(_user, "api", _resource) do
-    true
+  def verify_permissions(_user, "api", _resource) do
+    {:ok, nil}
   end
-  def verify_permissions?(user, "repository", name) do
-    if repository = Repositories.get(name) do
-      Repositories.access?(repository, user, "read")
+  def verify_permissions(user, "repository", name) do
+    repository = Repositories.get(name)
+    if repository && Repositories.access?(repository, user, "read") do
+      {:ok, repository}
     else
-      false
+      :error
     end
   end
-  def verify_permissions?(_user, _domain, _resource) do
-    false
+  def verify_permissions(_user, _domain, _resource) do
+    :error
   end
 end

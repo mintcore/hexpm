@@ -2,7 +2,7 @@ defmodule Hexpm.Web.API.PackageController do
   use Hexpm.Web, :controller
 
   plug :maybe_fetch_package when action in [:show]
-  plug :maybe_authorize, [domain: "api", fun: &repository_access?/2] when action in [:show]
+  plug :maybe_authorize, [domain: "api", fun: &repository_access/2] when action in [:show]
 
   @sort_params ~w(name recent_downloads total_downloads inserted_at updated_at)
 
@@ -22,6 +22,7 @@ defmodule Hexpm.Web.API.PackageController do
   end
 
   def show(conn, _params) do
+    # TODO: Show flash if private package and repository does not have active billing
     if package = conn.assigns.package do
       when_stale(conn, package, fn conn ->
         package = Packages.preload(package)
