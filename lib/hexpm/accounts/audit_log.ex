@@ -55,25 +55,30 @@ defmodule Hexpm.Accounts.AuditLog do
 
   defp extract_params("docs.publish", {package, release}), do: %{package: serialize(package), release: serialize(release)}
   defp extract_params("docs.revert", {package, release}), do: %{package: serialize(package), release: serialize(release)}
+  defp extract_params("email.add", email), do: serialize(email)
+  defp extract_params("email.gravatar", {old_email, new_email}), do: %{old_email: serialize(old_email), new_email: serialize(new_email)}
+  defp extract_params("email.primary", {old_email, new_email}), do: %{old_email: serialize(old_email), new_email: serialize(new_email)}
+  defp extract_params("email.public", {old_email, new_email}), do: %{old_email: serialize(old_email), new_email: serialize(new_email)}
+  defp extract_params("email.remove", email), do: serialize(email)
   defp extract_params("key.generate", key), do: serialize(key)
   defp extract_params("key.remove", key), do: serialize(key)
   defp extract_params("owner.add", {package, user}), do: %{package: serialize(package), user: serialize(user)}
   defp extract_params("owner.remove", {package, user}), do: %{package: serialize(package), user: serialize(user)}
+  defp extract_params("password.reset.finish", nil), do: %{}
+  defp extract_params("password.reset.init", nil), do: %{}
+  defp extract_params("password.update", nil), do: %{}
   defp extract_params("release.publish", {package, release}), do: %{package: serialize(package), release: serialize(release)}
-  defp extract_params("release.revert", {package, release}), do: %{package: serialize(package), release: serialize(release)}
   defp extract_params("release.retire", {package, release}), do: %{package: serialize(package), release: serialize(release)}
+  defp extract_params("release.revert", {package, release}), do: %{package: serialize(package), release: serialize(release)}
   defp extract_params("release.unretire", {package, release}), do: %{package: serialize(package), release: serialize(release)}
-  defp extract_params("email.add", email), do: serialize(email)
-  defp extract_params("email.remove", email), do: serialize(email)
-  defp extract_params("email.primary", {old_email, new_email}), do: %{old_email: serialize(old_email), new_email: serialize(new_email)}
-  defp extract_params("email.public", {old_email, new_email}), do: %{old_email: serialize(old_email), new_email: serialize(new_email)}
-  defp extract_params("email.gravatar", {old_email, new_email}), do: %{old_email: serialize(old_email), new_email: serialize(new_email)}
   defp extract_params("user.create", user), do: serialize(user)
   defp extract_params("user.update", user), do: serialize(user)
-  defp extract_params("password.reset.init", nil), do: %{}
-  defp extract_params("password.reset.finish", nil), do: %{}
-  defp extract_params("password.update", nil), do: %{}
 
+  defp serialize(%Key{} = key) do
+    key
+    |> do_serialize()
+    |> Map.put(:permissions, Enum.map(key.permissions, &serialize/1))
+  end
   defp serialize(%Package{} = package) do
     package
     |> do_serialize()
@@ -90,27 +95,20 @@ defmodule Hexpm.Accounts.AuditLog do
     |> do_serialize()
     |> Map.put(:handles, serialize(user.handles))
   end
-  defp serialize(%Key{} = key) do
-    key
-    |> do_serialize()
-    |> Map.put(:permissions, Enum.map(key.permissions, &serialize/1))
-  end
-  defp serialize(nil),
-    do: nil
-  defp serialize(schema),
-    do: do_serialize(schema)
+  defp serialize(nil), do: nil
+  defp serialize(schema), do: do_serialize(schema)
 
   defp do_serialize(schema), do: Map.take(schema, fields(schema))
 
+  defp fields(%Email{}), do: [:email, :primary, :public, :primary, :gravatar]
   defp fields(%Key{}), do: [:id, :name]
   defp fields(%KeyPermission{}), do: [:resource, :domain]
   defp fields(%Package{}), do: [:id, :name, :repository_id]
-  defp fields(%Release{}), do: [:id, :version, :checksum, :has_docs, :package_id]
-  defp fields(%User{}), do: [:id, :username]
   defp fields(%PackageMetadata{}), do: [:description, :licenses, :links, :maintainers, :extra]
+  defp fields(%Release{}), do: [:id, :version, :checksum, :has_docs, :package_id]
   defp fields(%ReleaseMetadata{}), do: [:app, :build_tools, :elixir]
   defp fields(%ReleaseRetirement{}), do: [:status, :message]
-  defp fields(%Email{}), do: [:email, :primary, :public, :primary, :gravatar]
+  defp fields(%User{}), do: [:id, :username]
   defp fields(%UserHandles{}), do: [:github, :twitter, :freenode]
 
   defp multi_key(action), do: :"log.#{action}"
