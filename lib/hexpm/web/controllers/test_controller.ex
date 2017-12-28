@@ -47,7 +47,7 @@ defmodule Hexpm.Web.TestController do
   end
 
   def repo(conn, %{"name" => name}) do
-    Repositories.create(name, conn.assigns.current_user)
+    Repositories.create(name, conn.assigns.current_user, audit: {%User{}, "TEST"})
     send_resp(conn, 204, "")
   end
 

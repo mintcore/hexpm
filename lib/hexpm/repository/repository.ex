@@ -42,6 +42,7 @@ defmodule Hexpm.Repository.Repository do
   def changeset(struct, params) do
     cast(struct, params, [:name])
     |> validate_required([:name])
+    |> unique_constraint(:name)
     |> put_change(:public, false)
   end
 
