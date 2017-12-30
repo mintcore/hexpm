@@ -33,9 +33,9 @@ export default class App {
     $(".show-versions .toggle-text").click((event) => $(event.target).parent().find("a").toggle())
 
     // Switch tabs
-    $('.nav-tabs a').click(function (e) {
+    $(".nav-tabs a").click(function (e) {
       e.preventDefault()
-      $(this).tab('show')
+      $(this).tab("show")
     })
 
     // Highlight syntax
