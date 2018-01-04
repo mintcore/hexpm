@@ -158,12 +158,14 @@ defmodule Hexpm.Web.AuthHelpers do
   def repository_billing_active(%Plug.Conn{} = conn, user) do
     repository_billing_active(conn.assigns.repository, user)
   end
-  def repository_billing_active(%Repository{} = repository, _user) do
-    if repository.public or repository.billing_active do
-      :ok
-    else
-      {:error, :auth, "repository has no active billing subscription"}
-    end
+  def repository_billing_active(%Repository{} = _repository, _user) do
+    # TODO: Change when billing is required
+    # if repository.public or repository.billing_active do
+    #   :ok
+    # else
+    #   {:error, :auth, "repository has no active billing subscription"}
+    # end
+    :ok
   end
 
   def correct_user(%Plug.Conn{} = conn, user) do
