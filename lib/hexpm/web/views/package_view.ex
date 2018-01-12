@@ -1,6 +1,8 @@
 defmodule Hexpm.Web.PackageView do
   use Hexpm.Web, :view
 
+  alias Hexpm.Web.AmountFormat
+
   def show_sort_info(nil), do: "(Sorted by name)"
   def show_sort_info(:name), do: "(Sorted by name)"
   def show_sort_info(:inserted_at), do: "(Sorted by recently created)"
@@ -16,9 +18,9 @@ defmodule Hexpm.Web.PackageView do
   def display_downloads(package_downloads, view) do
     case view do
       :recent_downloads ->
-        Map.get(package_downloads, "recent")
+        Map.get(package_downloads, "recent") |> AmountFormat.format
       _ ->
-        Map.get(package_downloads, "all")
+        Map.get(package_downloads, "all") |> AmountFormat.format
     end
   end
 
